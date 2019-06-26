@@ -26,7 +26,6 @@ namespace Altantis_DeviceActorEP.Controllers
         {
             using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
             {
-                //Console.WriteLine(reader.ReadToEndAsync().Result);
                 Service.MQTT.Instance.Client_MqttPublishMsg(reader.ReadToEndAsync().Result);
                 return await reader.ReadToEndAsync();
             }
