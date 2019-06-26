@@ -51,7 +51,6 @@ namespace Altantis_DeviceActorEP.Service
         {
             try
             {
-                //Initialize Client
                 Client = new MqttClient(BrokerAddress);
                 ClientId = Guid.NewGuid().ToString();
                 Client.Connect(ClientId);
