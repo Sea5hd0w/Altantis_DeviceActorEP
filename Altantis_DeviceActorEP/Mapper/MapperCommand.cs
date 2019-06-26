@@ -17,7 +17,6 @@ namespace Altantis_DeviceActorEP.Mapper
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
                 return null;
             }
         }
