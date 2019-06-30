@@ -13,12 +13,9 @@ namespace Altantis_DeviceActorEP.Mapper
             try
             {
                 var jo = JObject.Parse(dao.Content);
-                return new Business.Command(jo["macAddress"].ToString(), jo["sensorName"].ToString(), jo["action"].ToString());
+                return new Business.Command(jo["macAddress"].ToString(), jo["actorName"].ToString(), jo["action"].ToString());
             }
-            catch (Exception e)
-            {
-                return null;
-            }
+            catch { return null; }
         }
     }
 }

@@ -1,19 +1,14 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 
-namespace Altantis_DeviceActorEP.Service
+namespace Atlantis_DeviceActorEP_Test_xUnit
 {
-    public class MQTT
+    class MQTT
     {
-        private static readonly Lazy<MQTT> _lazy = new Lazy<MQTT>(() => new MQTT());
-        public static MQTT Instance { get { return _lazy.Value; } }
-
         public string BrokerAddress { get; set; }
         public string TopicAddress { get; set; }
         public string UserName { get; set; }
@@ -23,17 +18,18 @@ namespace Altantis_DeviceActorEP.Service
         public MqttClient Client { get; set; }
         public string ClientId { get; set; }
 
-        public string Status { get; set; }
+        List<string> MessageRecive { get; set; }
 
-        private MQTT()
+        public MQTT()
         {
+            MessageRecive = new List<string>();
+
             LoadConfig();
-            if (Status == "") StartMQTT();
+            StartMQTT();
         }
 
         private void LoadConfig()
         {
-            Status = "";
             try
             {
                 BrokerAddress = "";
@@ -48,32 +44,34 @@ namespace Altantis_DeviceActorEP.Service
                 UserPassword = configuration.GetConnectionString("UserPassword");
                 ConnectionPort = Convert.ToInt32(configuration.GetConnectionString("ConnectionPort"));
             }
-            catch { Status = "🔴 - EndPoint Down - Config file Error"; }
+            catch { }
         }
 
         private void StartMQTT()
         {
             try
             {
+                //Initialize Client
                 Client = new MqttClient(BrokerAddress, ConnectionPort, true, null, null, MqttSslProtocols.TLSv1_2);
+                Client.MqttMsgPublishReceived += Client_MqttMsgPublishReceived;
                 ClientId = Guid.NewGuid().ToString();
                 Client.Connect(ClientId, UserName, UserPassword);
 
-                Status = "🔵 - EndPoint Up - Connected to " + BrokerAddress + TopicAddress;
+                //Subscibe
+                if (BrokerAddress != "" & TopicAddress != "") Client.Subscribe(new string[] { TopicAddress }, new byte[] { 2 });
             }
-            catch { Status = "🔴 - EndPoint Down - MQTT connection Error "; }
+            catch { }
         }
 
-        public void Client_MqttPublishMsg(string command)
+        private void Client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
-            Business.Command temp = Mapper.MapperCommand.DAOToBusiness(new DAO.Command(command));
+            string mess = Encoding.UTF8.GetString(e.Message);
+            MessageRecive.Add(mess);
+        }
 
-            if (temp != null)
-            {
-                string json = Newtonsoft.Json.JsonConvert.SerializeObject(temp);
-                Console.WriteLine(json);
-                Client.Publish(TopicAddress, Encoding.UTF8.GetBytes(json), MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, true);
-            }
+        public bool CheckMessageReception(string mess)
+        {
+            return MessageRecive.Contains(mess);
         }
     }
 }

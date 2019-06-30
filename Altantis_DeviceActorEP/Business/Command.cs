@@ -8,13 +8,13 @@ namespace Altantis_DeviceActorEP.Business
     public class Command
     {
         public string MacAddress { get; set; }
-        public string DeviceType { get; set; }
+        public string ActorName { get; set; }
         public string Action { get; set; }
 
-        public Command(string macAddress, string deviceType, string action)
+        public Command(string macAddress, string actorName, string action)
         {
             MacAddress = macAddress;
-            DeviceType = deviceType;
+            ActorName = actorName;
             Action = action;
         }
     }
