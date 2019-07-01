@@ -30,7 +30,7 @@ namespace Altantis_DeviceActorEP.Service
             LoadConfig();
             if (Status == "") StartMQTT();
         }
-
+         
         private void LoadConfig()
         {
             Status = "";
